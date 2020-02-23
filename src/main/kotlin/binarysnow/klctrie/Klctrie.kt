@@ -9,6 +9,7 @@ fun main(args: Array<String>) {
 
     // Write result
     println(result)
+    printNodes(result)
 }
 
 fun readInput(): List<Input> {

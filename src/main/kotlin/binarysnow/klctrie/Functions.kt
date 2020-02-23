@@ -19,14 +19,16 @@ fun extractBits(input: Int, position: Byte, numBits: Byte = 1): Int {
 fun computeBranch(input: List<Input>, ignore: Byte): Byte {
     val size = input.size
 
-    // If there only two elements use one bit for branching
+    // If there is only one element use zero bits for branching as this is a leaf node
+    if (size == 1) return 0
+    // If there are only two elements use one bit for branching
     if (size == 2) return 1
 
-    // Start with 2 bits as the number of branch bits to use
-    var bits: Byte = 2
+    var bits: Byte = 1
     var count: Int
 
     do {
+        bits++
         if (size < 1.shl(bits.toInt()) || ignore + bits > 32) {
             break
         }
@@ -44,7 +46,6 @@ fun computeBranch(input: List<Input>, ignore: Byte): Byte {
             }
             pattern++
         }
-        bits++
     } while (count >= 1.shl(bits.toInt()))
 
     return (bits - 1).toByte()
@@ -76,10 +77,34 @@ fun buildLctrie(input: List<Input>, branch: Byte, skip: Byte, ignore: Byte): Nod
             val newBranch = computeBranch(subList, (newIgnore + newSkip).toByte())
             children.add(buildLctrie(subList, newBranch, newSkip, newIgnore))
         } else {
-            //children.add(buildLctrie(subList, 0, skip, newIgnore))
-            children.add(Node(branch, skip, emptyList(), subList.first().info))
+            // This is a leaf node so had a branch of zero
+            // The skip is ...?
+            children.add(Node(0, skip, emptyList(), subList.first().info))
         }
         start = i
     }
     return Node(branch, skip, children)
+}
+
+fun printNodes(input: Node) {
+    var ptr: Int = 1
+    var children = listOf(input)
+
+    while (children.isNotEmpty()) {
+        val size = children.size
+        children = printNodes(children, ptr)
+        ptr += size
+    }
+
+}
+
+fun printNodes(input: List<Node>, ptr: Int): List<Node> {
+    val result = mutableListOf<Node>()
+    var pointer = ptr
+    for (node in input) {
+        println("${node.branchBits}, ${node.skipBits}, $pointer")
+        result.addAll(node.children)
+        pointer++
+    }
+    return result
 }
