@@ -77,9 +77,11 @@ fun buildLctrie(input: List<Input>, branch: Byte, skip: Byte, ignore: Byte): Nod
             val newBranch = computeBranch(subList, (newIgnore + newSkip).toByte())
             children.add(buildLctrie(subList, newBranch, newSkip, newIgnore))
         } else {
-            // This is a leaf node so had a branch of zero
+            // This is a leaf node so has a branch of zero
             // The skip is ...?
-            children.add(Node(0, skip, emptyList(), subList.first().info))
+            val first = subList.first()
+            val newSkip: Byte = (first.length - newIgnore).toByte()
+            children.add(Node(0, newSkip, emptyList(), first.info))
         }
         start = i
     }
@@ -87,24 +89,26 @@ fun buildLctrie(input: List<Input>, branch: Byte, skip: Byte, ignore: Byte): Nod
 }
 
 fun printNodes(input: Node) {
-    var ptr: Int = 1
+    var ptr = 1
     var children = listOf(input)
 
     while (children.isNotEmpty()) {
-        val size = children.size
         children = printNodes(children, ptr)
-        ptr += size
+        ptr += children.size
     }
-
 }
 
 fun printNodes(input: List<Node>, ptr: Int): List<Node> {
     val result = mutableListOf<Node>()
-    var pointer = ptr
+    var pointer: Int
     for (node in input) {
+        if (node.children.size < 2) {
+            pointer = 0
+        } else {
+            pointer = ptr
+        }
         println("${node.branchBits}, ${node.skipBits}, $pointer")
         result.addAll(node.children)
-        pointer++
     }
     return result
 }
