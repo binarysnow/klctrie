@@ -1,18 +1,21 @@
 package binarysnow.klctrie
 
-fun main(args: Array<String>) {
+fun main() {
     // Read file
     val input = readInput()
 
     // Build LcTrie
-    val result = buildLctrie(input, 3, 0, 0)
+    val lcTrieBuilder = LCTrieBuilder<String>()
+    val result = lcTrieBuilder.buildLcTrie(input, 3, 0, 0)
 
     // Write result
     println(result)
-    printNodes(result)
+
+    val printer = PrintOutput(input)
+    printer.printLcTrie()
 }
 
-fun readInput(): List<Input> {
+fun readInput(): List<Input<String>> {
     return listOf(
             Input(0b0000_0000000000000000000000000000, 4, "A"),
             Input(0b0001_0000000000000000000000000000, 4, "B"),
